@@ -1,7 +1,6 @@
 #include"TypeScriptFactory.h"
 #include"TypeScrpit.h"
-
-DWORD g_lLocks;
+#include"Common.h"
 
 /** IUnknown **/
 HRESULT STDMETHODCALLTYPE CTypeScriptFactory::QueryInterface(
@@ -48,8 +47,8 @@ HRESULT STDMETHODCALLTYPE CTypeScriptFactory::CreateInstance(
 HRESULT STDMETHODCALLTYPE CTypeScriptFactory::LockServer(BOOL fLock)
 {
 	if (fLock)
-		InterlockedIncrement(&g_lLocks);
+		InterlockedIncrement(&ulLockCount);
 	else
-		InterlockedDecrement(&g_lLocks);
+		InterlockedDecrement(&ulLockCount);
 	return S_OK;
 }

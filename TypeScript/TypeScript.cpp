@@ -1,7 +1,10 @@
 #include"TypeScrpit.h"
+#include"Common.h"
 
 CTypeScript::CTypeScript(): m_ref(1)
 {
+	InterlockedIncrement(&ulLockCount);
+
 	CLSID CLSID_Script;
 	CLSIDFromProgID(L"JScript", &CLSID_Script);
 
@@ -13,6 +16,8 @@ CTypeScript::~CTypeScript()
 {
 	m_jsparse->Release();
 	m_js->Release();
+
+	InterlockedDecrement(&ulLockCount);
 }
 
 /** IUnknown **/

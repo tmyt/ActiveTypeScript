@@ -146,10 +146,12 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="TypeScript.cpp" />
     <ClCompile Include="TypeScriptFactory.cpp" />
+    <ClCompile Include="Common.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TypeScriptFactory.h" />
-    <ClInclude Include="TypeScrpit.h" />
+    <ClInclude Include="TypeScript.h" />
+    <ClInclude Include="Common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

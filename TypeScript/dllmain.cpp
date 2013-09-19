@@ -1,4 +1,6 @@
 #include<Windows.h>
+#include"Common.h"
+#include"TypeScriptFactory.h"
 
 BOOL DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -7,12 +9,18 @@ BOOL DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
 
 STDAPI DllCanUnloadNow()
 {
-	return E_NOTIMPL;
+	return !ulLockCount ? S_OK : S_FALSE;
 }
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
-	return E_NOTIMPL;
+	static CTypeScriptFactory factory;
+	if(!ppv) return E_INVALIDARG;
+
+	if(rclsid == CLSID_TypeScript)
+		return factory.QueryInterface(riid, ppv);
+	*ppv = nullptr;
+	return CLASS_E_CLASSNOTAVAILABLE;
 }
 
 STDAPI DllRegisterServer()
