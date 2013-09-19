@@ -2,9 +2,11 @@
 
 #include<Windows.h>
 
-// {11369DE6-251F-445e-A44E-1A694D638F43}
-DEFINE_GUID(CLSID_TypeScript,
-	0x11369de6, 0x251f, 0x445e, 0xa4, 0x4e, 0x1a, 0x69, 0x4d, 0x63, 0x8f, 0x43);
+// {A780C1EE-7853-4CFE-A9C6-92C9800EE7C7}
+DEFINE_GUID(CLSID_TypeScript, 
+		0xa780c1ee, 0x7853, 0x4cfe, 0xa9, 0xc6, 0x92, 0xc9, 0x80, 0xe, 0xe7, 0xc7);
+#define szClsid _T("{A780C1EE-7853-4CFE-A9C6-92C9800EE7C7}")
+#define szProgid _T("TypeScript")
 
 class CTypeScriptFactory : public IClassFactory
 {

@@ -25,10 +25,47 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 
 STDAPI DllRegisterServer()
 {
-	return E_NOTIMPL;
+	TCHAR szKey[256];
+	wsprintf_s(szKey, _T("CLSID\\%s"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("ActiveTypeScript")))
+		return E_FAIL;
+
+	GetModuleFileName(g_hinstDll, szModulePath, sizeof(szModulePath) / sizeof(TCHAR));
+	wsprintf(szKey, TEXT("CLSID\\%s\\InprocServer32"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, szModulePath))
+		return E_FAIL;
+	
+	wsprintf(szKey, TEXT("CLSID\\%s\\InprocServer32"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, TEXT("ThreadingModel"), TEXT("Both")))
+		return E_FAIL;
+	
+	wsprintf(szKey, TEXT("CLSID\\%s\\ProgID"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, szProgid))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("CLSID\\%s\\OLEScript"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("%s"), szProgid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("ActiveTypeScript")))
+		return E_FAIL;
+  
+	wsprintf(szKey, TEXT("%s\\CLSID"), szProgid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, (LPTSTR)szClsid))
+		return E_FAIL;
+
+	return S_OK;
 }
 
 STDAPI DllUnregisterServer()
 {
-	return E_NOTIMPL;
+TCHAR szKey[256];
+
+	wsprintf(szKey, TEXT("CLSID\\%s"), szClsid);
+	SHDeleteKey(HKEY_CLASSES_ROOT, szKey);
+	
+	wsprintf(szKey, TEXT("%s"), szProgid);
+	SHDeleteKey(HKEY_CLASSES_ROOT, szKey);
+	return S_OK;
 }
