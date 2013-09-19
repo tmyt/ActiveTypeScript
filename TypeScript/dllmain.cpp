@@ -27,7 +27,7 @@ STDAPI DllRegisterServer()
 {
 	TCHAR szKey[256];
 	wsprintf_s(szKey, _T("CLSID\\%s"), szClsid);
-	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("ActiveTypeScript")))
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("TypeScript Language")))
 		return E_FAIL;
 
 	GetModuleFileName(g_hinstDll, szModulePath, sizeof(szModulePath) / sizeof(TCHAR));
@@ -48,11 +48,15 @@ STDAPI DllRegisterServer()
 		return E_FAIL;
 
 	wsprintf(szKey, TEXT("%s"), szProgid);
-	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("ActiveTypeScript")))
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("TypeScript Language")))
 		return E_FAIL;
   
 	wsprintf(szKey, TEXT("%s\\CLSID"), szProgid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, (LPTSTR)szClsid))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("%s\\OLEScript"), szProgid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
 		return E_FAIL;
 
 	return S_OK;
