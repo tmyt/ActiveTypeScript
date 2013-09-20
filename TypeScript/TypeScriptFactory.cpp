@@ -1,5 +1,5 @@
 #include"TypeScriptFactory.h"
-#include"TypeScrpit.h"
+#include"TypeScript.h"
 #include"Common.h"
 
 /** IUnknown **/

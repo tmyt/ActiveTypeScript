@@ -1,4 +1,4 @@
-#include"TypeScrpit.h"
+#include"TypeScript.h"
 #include"Common.h"
 
 CTypeScript::CTypeScript(): m_ref(1)

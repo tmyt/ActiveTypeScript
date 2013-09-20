@@ -1,9 +1,21 @@
 #include<Windows.h>
+#include<Shlwapi.h>
+#include<tchar.h>
+
+#define INITGUID
+#include<guiddef.h>
 #include"Common.h"
 #include"TypeScriptFactory.h"
 
+#pragma comment(lib, "shlwapi.lib")
+
+HINSTANCE hInstance;
+
+BOOL CreateRegistryKey(HKEY hKeyRoot, LPTSTR lpszKey, LPTSTR lpszValue, LPTSTR lpszData);
+
 BOOL DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
 {
+	::hInstance = hInstance;
 	return TRUE;
 }
 
@@ -15,9 +27,9 @@ STDAPI DllCanUnloadNow()
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
 	static CTypeScriptFactory factory;
-	if(!ppv) return E_INVALIDARG;
+	if (!ppv) return E_INVALIDARG;
 
-	if(rclsid == CLSID_TypeScript)
+	if (rclsid == CLSID_TypeScript)
 		return factory.QueryInterface(riid, ppv);
 	*ppv = nullptr;
 	return CLASS_E_CLASSNOTAVAILABLE;
@@ -26,19 +38,21 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 STDAPI DllRegisterServer()
 {
 	TCHAR szKey[256];
-	wsprintf_s(szKey, _T("CLSID\\%s"), szClsid);
+	TCHAR szModulePath[MAX_PATH];
+
+	wsprintf(szKey, _T("CLSID\\%s"), szClsid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("TypeScript Language")))
 		return E_FAIL;
 
-	GetModuleFileName(g_hinstDll, szModulePath, sizeof(szModulePath) / sizeof(TCHAR));
+	GetModuleFileName(hInstance, szModulePath, sizeof(szModulePath) / sizeof(TCHAR));
 	wsprintf(szKey, TEXT("CLSID\\%s\\InprocServer32"), szClsid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, szModulePath))
 		return E_FAIL;
-	
+
 	wsprintf(szKey, TEXT("CLSID\\%s\\InprocServer32"), szClsid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, TEXT("ThreadingModel"), TEXT("Both")))
 		return E_FAIL;
-	
+
 	wsprintf(szKey, TEXT("CLSID\\%s\\ProgID"), szClsid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, szProgid))
 		return E_FAIL;
@@ -50,9 +64,9 @@ STDAPI DllRegisterServer()
 	wsprintf(szKey, TEXT("%s"), szProgid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("TypeScript Language")))
 		return E_FAIL;
-  
+
 	wsprintf(szKey, TEXT("%s\\CLSID"), szProgid);
-	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, (LPTSTR)szClsid))
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, (LPTSTR) szClsid))
 		return E_FAIL;
 
 	wsprintf(szKey, TEXT("%s\\OLEScript"), szProgid);
@@ -64,12 +78,32 @@ STDAPI DllRegisterServer()
 
 STDAPI DllUnregisterServer()
 {
-TCHAR szKey[256];
+	TCHAR szKey[256];
 
 	wsprintf(szKey, TEXT("CLSID\\%s"), szClsid);
 	SHDeleteKey(HKEY_CLASSES_ROOT, szKey);
-	
+
 	wsprintf(szKey, TEXT("%s"), szProgid);
 	SHDeleteKey(HKEY_CLASSES_ROOT, szKey);
 	return S_OK;
+}
+
+BOOL CreateRegistryKey(HKEY hKeyRoot, LPTSTR lpszKey, LPTSTR lpszValue, LPTSTR lpszData)
+{
+	HKEY  hKey;
+	LONG  lResult;
+	DWORD dwSize;
+
+	lResult = RegCreateKeyEx(hKeyRoot, lpszKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE|KEY_CREATE_SUB_KEY, NULL, &hKey, NULL);
+	if (lResult != ERROR_SUCCESS)
+		return FALSE;
+
+	if (lpszData != NULL)
+	{
+		dwSize = (lstrlen(lpszData) + 1) * sizeof(TCHAR);
+		RegSetValueEx(hKey, lpszValue, 0, REG_SZ, (LPBYTE) lpszData, dwSize);
+	}
+	RegCloseKey(hKey);
+
+	return TRUE;
 }
