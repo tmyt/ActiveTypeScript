@@ -151,11 +151,13 @@
     <ClCompile Include="TypeScript.cpp" />
     <ClCompile Include="TypeScriptFactory.cpp" />
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="TypeScriptParse.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="TypeScriptFactory.h" />
     <ClInclude Include="TypeScript.h" />
-    <ClInclude Include="Common.h" />
+    <ClInclude Include="TypeScriptParse.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TypeScript.def" />

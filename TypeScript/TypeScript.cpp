@@ -1,7 +1,11 @@
+#include<Windows.h>
+#include<Shlwapi.h>
+
 #include"TypeScript.h"
+#include"TypeScriptParse.h"
 #include"Common.h"
 
-CTypeScript::CTypeScript(): m_ref(1)
+CTypeScript::CTypeScript() : m_ref(1)
 {
 	InterlockedIncrement(&ulLockCount);
 
@@ -9,12 +13,10 @@ CTypeScript::CTypeScript(): m_ref(1)
 	CLSIDFromProgID(L"JScript", &CLSID_Script);
 
 	CoCreateInstance(CLSID_Script, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_js));
-	m_js->QueryInterface(IID_PPV_ARGS(&m_jsparse));
 }
 
 CTypeScript::~CTypeScript()
 {
-	m_jsparse->Release();
 	m_js->Release();
 
 	InterlockedDecrement(&ulLockCount);
@@ -25,10 +27,14 @@ HRESULT STDMETHODCALLTYPE CTypeScript::QueryInterface(
 	/* [in] */ REFIID riid,
 	/* [iid_is][out] */ _COM_Outptr_ void __RPC_FAR *__RPC_FAR *ppvObject)
 {
-	if (riid == IID_IUnknown || riid == IID_IActiveScript || riid == IID_IActiveScriptParse)
+	if (riid == IID_IUnknown || riid == IID_IActiveScript)
 	{
 		AddRef();
 		*ppvObject = this;
+		return S_OK;
+	}
+	if (riid == IID_IActiveScriptParse){
+		*ppvObject = new CTypeScriptParse(m_js);
 		return S_OK;
 	}
 	return E_NOINTERFACE;
@@ -134,42 +140,4 @@ HRESULT STDMETHODCALLTYPE CTypeScript::Clone(
 	/* [out] */ __RPC__deref_out_opt IActiveScript **ppscript)
 {
 	return E_NOTIMPL;
-}
-
-/** IActiveScriptParse **/
-HRESULT STDMETHODCALLTYPE CTypeScript::InitNew(void)
-{
-	return m_jsparse->InitNew();
-}
-
-HRESULT STDMETHODCALLTYPE CTypeScript::AddScriptlet(
-	/* [in] */ __RPC__in LPCOLESTR pstrDefaultName,
-	/* [in] */ __RPC__in LPCOLESTR pstrCode,
-	/* [in] */ __RPC__in LPCOLESTR pstrItemName,
-	/* [in] */ __RPC__in LPCOLESTR pstrSubItemName,
-	/* [in] */ __RPC__in LPCOLESTR pstrEventName,
-	/* [in] */ __RPC__in LPCOLESTR pstrDelimiter,
-	/* [in] */ COOKIETYPE dwSourceContextCookie,
-	/* [in] */ ULONG ulStartingLineNumber,
-	/* [in] */ DWORD dwFlags,
-	/* [out] */ __RPC__deref_out_opt BSTR *pbstrName,
-	/* [out] */ __RPC__out EXCEPINFO *pexcepinfo)
-{
-	return m_jsparse->AddScriptlet(pstrDefaultName, pstrCode, pstrItemName, pstrSubItemName, pstrEventName,
-		pstrDelimiter, dwSourceContextCookie, ulStartingLineNumber, dwFlags, pbstrName, pexcepinfo);
-}
-
-HRESULT STDMETHODCALLTYPE CTypeScript::ParseScriptText(
-	/* [in] */ __RPC__in LPCOLESTR pstrCode,
-	/* [in] */ __RPC__in LPCOLESTR pstrItemName,
-	/* [in] */ __RPC__in_opt IUnknown *punkContext,
-	/* [in] */ __RPC__in LPCOLESTR pstrDelimiter,
-	/* [in] */ COOKIETYPE dwSourceContextCookie,
-	/* [in] */ ULONG ulStartingLineNumber,
-	/* [in] */ DWORD dwFlags,
-	/* [out] */ __RPC__out VARIANT *pvarResult,
-	/* [out] */ __RPC__out EXCEPINFO *pexcepinfo)
-{
-	return m_jsparse->ParseScriptText(pstrCode, pstrItemName, punkContext, pstrDelimiter, dwSourceContextCookie,
-		ulStartingLineNumber, dwFlags, pvarResult, pexcepinfo);
 }

@@ -13,7 +13,7 @@ HINSTANCE hInstance;
 
 BOOL CreateRegistryKey(HKEY hKeyRoot, LPTSTR lpszKey, LPTSTR lpszValue, LPTSTR lpszData);
 
-BOOL DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
+BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved)
 {
 	::hInstance = hInstance;
 	return TRUE;
@@ -61,6 +61,14 @@ STDAPI DllRegisterServer()
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
 		return E_FAIL;
 
+	wsprintf(szKey, TEXT("CLSID\\%s\\Implemented Category"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("CLSID\\%s\\Implemented Category\\{F0B7A1A2-9847-11CF-8F20-00805F2CD064}"), szClsid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
+		return E_FAIL;
+
 	wsprintf(szKey, TEXT("%s"), szProgid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, TEXT("TypeScript Language")))
 		return E_FAIL;
@@ -70,6 +78,14 @@ STDAPI DllRegisterServer()
 		return E_FAIL;
 
 	wsprintf(szKey, TEXT("%s\\OLEScript"), szProgid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("%s\\Implemented Category"), szProgid);
+	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
+		return E_FAIL;
+
+	wsprintf(szKey, TEXT("%s\\Implemented Category\\{F0B7A1A2-9847-11CF-8F20-00805F2CD064}"), szProgid);
 	if (!CreateRegistryKey(HKEY_CLASSES_ROOT, szKey, NULL, NULL))
 		return E_FAIL;
 
